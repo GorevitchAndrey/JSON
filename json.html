@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON</title>
+    <style>
+        body{
+            background-color: rgb(237, 228, 200);
+        }
+        #headUsers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 9fr));
+        }
+        #headUsers>div {
+            flex-basis: 20%;
+            padding: 15px;
+            font-size: large;
+            text-align: center;
+        }
+        h2 {
+            margin: 10px;
+            text-align: center;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            background-color: rgb(240, 218, 160);
+            width: -webkit-fill-available;
+        }
+        #bodyUsers {
+            font-size: large;
+        }
+        .div {
+            display: grid;
+            width: 100%;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .address,
+        .company {
+            display: none;
+        }
+        .information {
+            border: solid 1px gray;
+            border-radius: 6px;
+            padding: 5px;
+            margin: 1px;
+            background-color: rgba(248, 249, 216, 0.618);
+        }
+        .post_title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .post {
+            border: 1px solid gray;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgba(248, 249, 216, 0.618);
+        }
+        #footUsers {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            justify-items: center;
+        }
+        .btnShowPost{
+            display: grid;
+            margin-right: auto;
+            margin-left: auto;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>All Users</h2>
+    <main id='headUsers'></main>
+
+    <div id='bodyUsers'></div>
+    
+    <footer id='footUsers'></footer>
+
+    <script>
+        let userId = "";
+
+        function showUsers(data) {
+            let headUsers = document.querySelector("#headUsers");
+            headUsers.innerHTML = "";
+            for (let x of data) {
+                let div = document.createElement("div"),
+                    btn = document.createElement("button");
+                btn.innerText = x.name;
+                btn.dataset.index = x.id;
+                btn.addEventListener("click", user);
+                div.append(btn);
+                headUsers.append(div);
+            }
+        }
+        function user(e) {
+            userId = e.target.dataset.index;
+            fetch("https://jsonplaceholder.typicode.com/users/" + userId)
+                .then((response) => response.json())
+                .then((json) => detalsUsers(json));
+        }
+
+        function detalsUsers(data, e) {                         //функция для открытия данных
+            let bodyUsers = document.querySelector("#bodyUsers"),
+                hr = document.createElement("hr"),
+                div = document.createElement("div"),
+                btn = document.createElement("button");
+
+            btn.addEventListener("click", postsAjax);
+
+            bodyUsers.innerHTML = "";
+            for (let u in data) {
+                let evidence = document.createElement("div");
+
+                btn.classList.add('btnShowPost');
+                btn.innerText = "Show posts";
+                evidence.innerText = u + " : " + data[u];
+                evidence.className = u;
+                evidence.classList.add("information");
+                div.append(evidence);
+            }
+            div.classList.add("div");
+            bodyUsers.append(hr);
+            bodyUsers.append(div);
+            bodyUsers.append(btn);
+        }
+
+        function postsAjax(e) {
+            fetch("https://jsonplaceholder.typicode.com/posts?userId=" + userId)
+                .then((response) => response.json())
+                .then((json) => postsUsers(json));
+        }
+
+        function postsUsers(data) {                         //функция для открытия постов
+            let futer = document.querySelector("#footUsers"),
+                div = document.createElement("div");
+            
+            futer.innerHTML = "";
+
+            for (let u of data) {
+                let post = document.createElement("div"),
+                    title = document.createElement("p"),
+                    body = document.createElement("p");
+                title.innerText = u.title;
+                body.innerText = u.body;
+                post.append(title, body);
+                post.classList.add("post");
+                title.classList.add("post_title");
+                futer.append(post);
+            }
+        }
+        fetch("https://jsonplaceholder.typicode.com/users/")
+            .then((response) => response.json())
+            .then((json) => showUsers(json));
+
+    </script>
+</body>
+
+</html>
